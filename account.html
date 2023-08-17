@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アカウント</title>
+    <link rel="stylesheet" href="account.css">
+</head>
+
+<body>
+    <div id="container">
+        <nav>
+            <ul>
+                <li><a class="nav_button" data-operation="login">ログイン</a></li>
+                <li><a class="nav_button" data-operation="logout">ログアウト</a></li>
+                <li><a class="nav_button" data-operation="register">新規登録</a></li>
+                <li><a class="nav_button" data-operation="delete_account">アカウント削除</a></li>
+                <li><a class="nav_button" data-operation="topics">話題一覧</a></li>
+            </ul>
+        </nav>
+        <form id="accountForm" method="post" action="account.html">
+            <label for="user_name">ユーザー名：</label>
+            <input type="text" id="user_name" name="user_name" required>
+            <br>
+            <label for="password">パスワード：</label>
+            <input type="password" id="password" name="password" required>
+            <br>
+            <input type="hidden" name="operation" id="operation" value="login">
+            <input type="submit" id="submit" value="ログイン">
+        </form>
+    </div>
+    <script src="account.js"></script>
+</body>
+
+</html>
