@@ -46,7 +46,7 @@
       passwordFilled = document.getElementById('password');
     submitForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      console.log(useNameFilled.checkValidity(), passwordFilled.checkValidity(), event.target.querySelectorAll('#submit')[0].value);
+      // console.log(useNameFilled.checkValidity(), passwordFilled.checkValidity(), event.target.querySelectorAll('#submit')[0].value);
 
       if (!useNameFilled.checkValidity() || !passwordFilled.checkValidity()) {
         alert('ユーザー名とパスワードを入力してください');
@@ -75,10 +75,10 @@
           // Request was successful
           const response = xhr.response;
           // Process the response as needed
-          console.log(response, event.target.querySelectorAll('#submit')[0].value);
+          alert(response, event.target.querySelectorAll('#submit')[0].value);
         } else {
           // Request failed
-          console.log("Error: " + xhr.status);
+          alert("Error: " + xhr.status);
         }
       };
 
