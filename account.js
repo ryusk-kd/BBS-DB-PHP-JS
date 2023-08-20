@@ -11,15 +11,20 @@
     // Add click event listener to each navigation button
     navButtons.forEach(button => {
       button.addEventListener('click', (event) => {
-        // Prevent default behavior of the navigation button click
-        event.preventDefault();
-
         // Handle the click event
         // Get the text content of the clicked button
         var buttonOperation = event.target.dataset.operation,
             buttonText = event.target.textContent,
             inputUserName = document.getElementById('user_name'),
             inputPassword = document.getElementById('password');
+        
+        if (buttonOperation === "topics") {
+          window.location.href = 'main.html';
+          return;
+        }
+
+        // Prevent default behavior of the navigation button click
+        event.preventDefault();
 
         // Change the form operation to the clicked button
         document.getElementById('operation').value = buttonOperation;
