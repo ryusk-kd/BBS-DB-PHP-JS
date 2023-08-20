@@ -74,14 +74,10 @@ nav>ul {
 }
 #topics>ul>li>a>p {
     height: calc(100% - 4rem);
-    /* background: linear-gradient(180deg, #ddd, #ddd 6rem, #333 7rem);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent; */
     overflow: hidden;
     text-overflow: ellipsis;
 }
-#topics>ul>li>div.gradientscreen {
+#topics>ul>li>div.gradient_screen {
     position: absolute;
     top: 10rem;
     left: 0.6vmin;
@@ -95,23 +91,12 @@ nav>ul {
     color: #fff;
     background-color: #000;
 }
-/* #topics>ul>li>a:hover>p {
-    background: linear-gradient(180deg, #fff, #fff 6rem, #000 7rem);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-} */
 
 /* #post */
 #post {
     display: none;
     margin: 2px;
 }
-/*
-#postcheck:checked + #post {
-    display: block;
-}
-*/
 #post>form {
     display: flex;
     flex-direction: column;
@@ -128,8 +113,4 @@ nav>ul {
 }
 #post>form>input[type="submit"]:hover {
     background-color: #000;
-}
-
-.hidden {
-    display: none;
 }
