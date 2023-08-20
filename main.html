@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>話題一覧</title>
+    <link rel="stylesheet" href="main_style.css">
+</head>
+<body>
+    <div id="container">
+        <nav>
+            <ul>
+                <li><a class="nav_button" data-operation="post_topic">新しい話題</a></li>
+                <li><a class="nav_button" data-operation="account">アカウント</a></li>
+            </ul>
+        </nav>
+        <div id="topics">
+            <h1>話題一覧</h1>
+            <ul>
+                <!-- topics -->
+            </ul>
+        </div>
+        <input type="checkbox" id="postcheck" hidden>
+        <div id="post">
+            <h2>新しい話題</h2>
+            <form action="" method="post">
+                <input type="text" placeholder="タイトルを入力" name="title" required>
+                <textarea name="content" placeholder="概要を入力" required></textarea>
+                <input type="submit" value="投稿">
+            </form>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>
