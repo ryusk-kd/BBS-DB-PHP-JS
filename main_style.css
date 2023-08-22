@@ -77,7 +77,7 @@ nav>ul {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-#topics>ul>li>div.gradient_screen {
+#topics>ul>li>div.gradientScreen {
     position: absolute;
     top: 10rem;
     left: 0.6vmin;
