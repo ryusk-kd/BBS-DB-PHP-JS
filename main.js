@@ -9,7 +9,6 @@ function generateTopicHTML(topic) {
                 <h2>${title}</h2>
                 <p>${outline}</p>
             </a>
-            <div class="gradientScreen"></div>
         </li>`;
 }
 
