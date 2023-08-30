@@ -1,3 +1,3 @@
 <?php
-// DEBAG is a global constant used for debugging purposes
-define("DEBAG", true);
+// DEBUG is a global constant used for debugging purposes
+define("DEBUG", true);

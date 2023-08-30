@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Topic Title
+    </title>
+    <link rel="stylesheet" href="topic.css">
+</head>
+
+<body>
+    <div id="container">
+        <nav>
+            <ul>
+                <li><a class="nav_button" data-operation="post_comment">コメント</a></li>
+                <li><a class="nav_button" data-operation="topics">話題一覧</a></li>
+                <li><a class="nav_button" data-operation="account">アカウント</a></li>
+            </ul>
+        </nav>
+        <div id="topic">
+            <h1 id="title">Topic Title</h1>
+            <p id="outline">Outline</p>
+            <div id="posts"></div>
+        </div>
+        <div id="post">
+            <h2>コメント</h2>
+            <form action="" method="post">
+                <input type="hidden" name="topic_id" value="topicID">
+                <textarea name="content" id="" cols="30" rows="10" required></textarea>
+                <input type="submit" value="投稿">
+            </form>
+        </div>
+    </div>
+    <script src="topic.js"></script>
+</body>
+
+</html>

@@ -21,6 +21,13 @@ if ($operation == "get_topics") {
     echo json_encode(get_topics($pdo));
 } else if ($operation == "post_topic") {
     echo json_encode(post_topic($pdo, $_POST["title"], $_POST["content"]));
+} else if ($operation == "get_topic_by_id") {
+    echo json_encode(get_topic_by_id($pdo, $_POST["id"]));
+} else if ($operation == "get_posts") {
+    echo json_encode(get_posts_by_topic_id($pdo, $_POST["id"]));
+} else {
+    header('HTTP/1.1 405 Method Not Allowed');
+    exit;
 }
 
 
@@ -47,7 +54,7 @@ function get_topics(PDO $pdo) {
         return $topics;
     } catch (PDOException $e) {
         // Handle the exception and return an error message
-        return "Database Error: " . (defined('DEBAG') && (bool)DEBAG ? $e->getMessage() : "Unknown Error");
+        return "Database Error: " . (defined('DEBUG') && (bool)DEBUG ? $e->getMessage() : "Unknown Error");
     }
 }
 
@@ -99,6 +106,55 @@ function post_topic(PDO $pdo, string $title, string $content)
         return $pdo->lastInsertId();
     } catch (PDOException $e) {
         // Return a database error message
-        return "Database Error: " . (defined('DEBAG') && (bool) DEBAG ? $e->getMessage() : "Unknown Error");
+        return "Database Error: " . (defined('DEBUG') && (bool) DEBUG ? $e->getMessage() : "Unknown Error");
+    }
+}
+
+
+/**
+ * Retrieves a topic from the database by its ID.
+ *
+ * @param PDO $pdo The PDO instance for the database connection.
+ * @param int $id The ID of the topic to retrieve.
+ * @return mixed The topic data as an associative array, or a database error message.
+ */
+function get_topic_by_id(PDO $pdo, int $id) {
+    try {
+        // Prepare the SQL statement
+        $sql = "SELECT * FROM topics WHERE topic_id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        // Fetch the topic data
+        $topic = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $topic;
+    } catch (PDOException $e) {
+        // Return a database error message
+        return "Database Error: " . (defined('DEBUG') && (bool) DEBUG ? $e->getMessage() : "Unknown Error");
+    }
+}
+
+
+/**
+ * Retrieve posts by topic ID from the database.
+ *
+ * @param PDO $pdo The PDO instance.
+ * @param int $id The topic ID.
+ * @return array The array of posts.
+ */
+function get_posts_by_topic_id(PDO $pdo, int $id) {
+    try {
+        // Prepare the SQL statement
+        $sql = "SELECT * FROM posts WHERE topic_id = :id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $posts;
+    } catch (PDOException $e) {
+        // Return a database error message
+        return "Database Error: " . (defined('DEBUG') && (bool) DEBUG ? $e->getMessage() : "Unknown Error");
     }
 }
