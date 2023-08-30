@@ -1,0 +1,116 @@
+/* pin header */
+html, body {
+    margin: 0;
+}
+#container {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+#topic {
+    flex: 1;
+    overflow-y: scroll;
+}
+
+/* nav */
+nav>ul {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: #333;
+    color: #fff;
+}
+.nav_button {
+    display: block;
+    padding: 10px;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.nav_button:hover {
+    background-color: #000;
+}
+
+/* #topic */
+#topic {
+    margin: 2px;
+}
+#outline {
+    padding-left: 1rem;
+}
+#posts>div>p.post {
+    color: #ddd;
+    background-color: #333;
+    margin: 0.1rem 0;
+    padding: 0.2rem 1rem 0 1rem;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+#posts>div>p.post>span.post_number, #posts>div>p.post>span.date {
+    font-size: smaller;
+}
+#posts>div>p.post>span.content {
+    display: block;
+    margin: 0.2rem 0 0.2rem 1rem;
+    /* max-height: 6rem; */
+}
+/*
+#posts>div:hover>p.post>span.content {
+    max-height: fit-content;
+}
+#posts>div {
+    position: relative;
+    overflow-y: hidden;
+}
+*/
+/*
+#posts>div>div.gradientScreen {
+    position: absolute;
+    top: 6.6rem;
+    height: 1.6rem;
+    width: 100%;
+    border-radius: 1rem;
+    background: linear-gradient(180deg, transparent, #000 1.2rem);
+}
+#topic>div:hover>div.gradientScreen {
+    display: none;
+}
+*/
+#posts>div:hover>p.post {
+    color: #fff;
+    background-color: #000;
+}
+
+/* #post */
+#post {
+    display: none;
+    margin: 2px;
+}
+#post>form {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-width: 30rem;
+    max-height: 12rem;
+}
+
+.outline, .content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.gradient-text {
+    font-size: 36px;
+    background: linear-gradient(to bottom, #ddd, transparent);
+    -webkit-background-clip: text; /* Safari/Chrome */
+    background-clip: text;
+    color: transparent;
+}
