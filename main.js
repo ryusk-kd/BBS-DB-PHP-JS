@@ -68,7 +68,6 @@ function attachPostSubmitListener() {
         const form = document.querySelector("#post form");
         const formData = new FormData(form);
         const topicID = await postTopic(formData);
-        console.log(topicID);
         // if topicID is number, redirect to topic page
         window.location.href = `./topic/?id=${topicID}`;
     }
@@ -94,7 +93,6 @@ async function postTopic(formData) {
 // Main function
 async function main() {
     const topics = await getTopics();
-    console.log(topics);
     const topicsHTML = topics.map(generateTopicHTML).join("");
 
     const topicsContainer = document.getElementById("topics");
