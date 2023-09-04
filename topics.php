@@ -25,6 +25,8 @@ if ($operation == "get_topics") {
     echo json_encode(get_topic_by_id($pdo, $_POST["id"]));
 } else if ($operation == "get_posts") {
     echo json_encode(get_posts_by_topic_id($pdo, $_POST["id"]));
+} else if ($operation == "post_comment") {
+    echo json_encode(post_comment($pdo, $_POST["id"], $_POST["content"]));
 } else {
     header('HTTP/1.1 405 Method Not Allowed');
     exit;
@@ -156,5 +158,40 @@ function get_posts_by_topic_id(PDO $pdo, int $id) {
     } catch (PDOException $e) {
         // Return a database error message
         return "Database Error: " . (defined('DEBUG') && (bool) DEBUG ? $e->getMessage() : "Unknown Error");
+    }
+}
+
+
+/**
+ * Inserts a comment into the database.
+ *
+ * @param PDO $pdo The PDO object for the database connection.
+ * @param int $topic_id The ID of the topic to which the comment belongs.
+ * @param string $content The content of the comment.
+ * @throws PDOException If there is an error executing the SQL statement.
+ * @return bool|string Returns true if the comment is successfully inserted, or a string containing the error message if an error occurs.
+ */
+function post_comment(PDO $pdo, int $topic_id, string $content) {
+    $username = $_SESSION['username'] ?? null;
+
+    // Check if the content is valid
+    $pattern = '/\A[\p{Cc}\p{Cf}\p{Z}]++|[\p{Cc}\p{Cf}\p{Z}]++\z/u';
+    $contentLength = mb_strlen(preg_replace($pattern, '', $content));
+
+    // Validate the content length
+    if ($contentLength == 0 || $contentLength > 2000) {
+        return "Content must be between 1 and 2000 characters.";
+    }
+
+    // Sanitize Title and Content
+    $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
+
+    try {
+        $sql = "INSERT INTO posts (topic_id, content, username) VALUES (?, ?, ?)";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$topic_id, $content, $username]);
+        return true;
+    } catch (PDOException $e) {
+        return "Database Error: " . (defined('DEBUG') && DEBUG ? $e->getMessage() : "Unknown Error");
     }
 }

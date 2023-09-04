@@ -69,6 +69,75 @@ function generatePostElements(posts) {
     `).join("");
 }
 
+// Add event listener to the submit button in the post form
+function attachPostSubmitListener() {
+    const submitButton = document.querySelector('#post [type=submit]');
+    const handleClick = async (event) => {
+        event.preventDefault();
+        // console.log("Clicked! Submitting...");
+        const form = document.querySelector("#post form");
+        const formData = new FormData(form);
+        // Post comment
+        const response = await postComment(formData);
+        console.log(response);
+        if (response === true) {
+            // window.location.reload();
+        } else {
+            alert('コメントを投稿できませんでした。');
+        }
+    }
+    submitButton.addEventListener('click', handleClick);
+}
+
+
+// Add event listener to the submit button in the post form
+function attachPostSubmitListener() {
+    const submitButton = document.querySelector('#post [type=submit]');
+    
+    submitButton.addEventListener('click', async (event) => {
+        event.preventDefault();
+        const form = document.querySelector("#post form");
+        const formData = new FormData(form);
+        //console.log(form, formData.get('operation'));
+        const [ operation, topic_id, content] = [formData.get('operation'), formData.get('topic_id'), formData.get('content')];
+        
+        
+            const response = await postComment(operation, topic_id, content);
+            console.log(response);
+            
+            if (response === true) {
+                // Optionally, you can add a success message or redirect here
+                window.location.reload();
+                // alert('コメントを投稿しました。');
+            } else {
+                alert('コメントを投稿できませんでした。\n' + response);
+            }
+        
+    });
+}
+
+async function postComment(operation, id, content) {
+    try {
+        const response = await fetch(BASE_URL, {
+            method: 'POST',
+            body: new URLSearchParams({
+                operation,
+                id,
+                content
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Request failed with status: ' + response.status);
+        }
+
+        return await response.json();
+    } catch (error) {
+        throw new Error('Error posting comment: ' + error.message);
+    }
+}
+
+
 async function main() {
     try {
         attachNavButtonListeners();
@@ -78,8 +147,12 @@ async function main() {
         document.querySelector('#title').textContent = topic.title;
         document.querySelector('#outline').textContent = topic.content;
         document.getElementById('posts').innerHTML = generatePostElements(posts);
+        document.querySelector("#post>form>[name=topic_id]").value = topic.topic_id;
+
+        attachPostSubmitListener();
     } catch (error) {
         console.error("An error occurred:", error);
+        throw error;
     }
 }
 
