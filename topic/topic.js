@@ -103,7 +103,7 @@ function attachPostSubmitListener() {
         
         
             const response = await postComment(operation, topic_id, content);
-            console.log(response);
+            //console.log(response);
             
             if (response === true) {
                 // Optionally, you can add a success message or redirect here
