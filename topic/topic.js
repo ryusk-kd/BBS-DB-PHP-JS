@@ -14,7 +14,7 @@ function handleNavButtonClick(event) {
         if (index === 0) {
             togglePost();
         } else if (index === 1 || index === 2) {
-            const page = index === 1 ? 'main.html' : 'account.html';
+            const page = index === 1 ? '' : 'account/';
             window.location.href = `../${page}`;
         }
     }

@@ -24,9 +24,9 @@
     const inputUserName = document.getElementById('user_name');
     const inputPassword = document.getElementById('password');
 
-    // Redirect to main.html if the operation is "topics"
+    // Redirect to main page if the operation is "topics"
     if (buttonOperation === "topics") {
-      window.location.href = 'main.html';
+      window.location.href = '../';
       return;
     }
 
@@ -60,7 +60,7 @@
     const xhr = new XMLHttpRequest();
 
     // Configure the request
-    xhr.open("POST", "account.php", true);
+    xhr.open("POST", "../account.php", true);
     xhr.responseType = "json";
 
     // Define the onload event handler
@@ -119,10 +119,12 @@ function toggleNavButtonVisibility() {
     removeHiddenClass(button2);
     addHiddenClass(button3);
     removeHiddenClass(button4);
+    button2.click();
   } else {
     removeHiddenClass(button1);
     addHiddenClass(button2);
     removeHiddenClass(button3);
     addHiddenClass(button4);
+    button1.click();
   }
 }

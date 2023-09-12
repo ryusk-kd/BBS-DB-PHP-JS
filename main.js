@@ -9,7 +9,7 @@ function attachNavButtonListeners() {
         if (index === 0) {
             togglePost();
         } else if (index === 1) {
-            window.location.href = "account.html";
+            window.location.href = "account/";
         }
     };
 
