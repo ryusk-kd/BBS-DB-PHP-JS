@@ -1,93 +1,128 @@
-/**
- * account.js
- */
 (function() {
-    // Listen for the click event of the navigation buttons
-    // and change the form operation
+  // Select all the navigation buttons
+  const navButtons = document.querySelectorAll('.nav_button');
+  const submitForm = document.getElementById('accountForm');
+  const useNameFilled = document.getElementById('user_name');
+  const passwordFilled = document.getElementById('password');
 
-    // Get all the navigation buttons
-    const navButtons = document.querySelectorAll('.nav_button');
+  // Attach a click event listener to each navigation button
+  navButtons.forEach(button => {
+    button.addEventListener('click', handleNavButtonClick);
+  });
 
-    // Add click event listener to each navigation button
-    navButtons.forEach(button => {
-      button.addEventListener('click', (event) => {
-        // Handle the click event
-        // Get the text content of the clicked button
-        var buttonOperation = event.target.dataset.operation,
-            buttonText = event.target.textContent,
-            inputUserName = document.getElementById('user_name'),
-            inputPassword = document.getElementById('password');
-        
-        if (buttonOperation === "topics") {
-          window.location.href = 'main.html';
-          return;
-        }
+  // Check if login and toggle navButtons visibility
+  toggleNavButtonVisibility();
 
-        // Prevent default behavior of the navigation button click
-        event.preventDefault();
+  // Attach a submit event listener to the form
+  submitForm.addEventListener("submit", handleFormSubmit);
 
-        // Change the form operation to the clicked button
-        document.getElementById('operation').value = buttonOperation;
+  // Function to handle the click event of the navigation buttons
+  function handleNavButtonClick(event) {
+    // Get the button operation and text content
+    const buttonOperation = event.target.dataset.operation;
+    const buttonText = event.target.textContent;
+    const inputUserName = document.getElementById('user_name');
+    const inputPassword = document.getElementById('password');
 
-        // Change the submit button text
-        document.getElementById('submit').value = buttonText;
+    // Redirect to main.html if the operation is "topics"
+    if (buttonOperation === "topics") {
+      window.location.href = 'main.html';
+      return;
+    }
 
-        // Check if the clicked button is 'ログアウト'
-        if (buttonText === 'ログアウト') {
-            // Disable input of user name and password
-            inputUserName.disabled = true;
-            inputPassword.disabled = true;
-        } else {
-            // Enable input of user name and password
-            inputUserName.disabled = false;
-            inputPassword.disabled = false;
-        }
-      });
-    });
+    // Prevent the default form submission behavior
+    event.preventDefault();
 
-    // Listen for the submit event of the form and send AJAX request
-    const submitForm = document.getElementById('accountForm'),
-      useNameFilled = document.getElementById('user_name'),
-      passwordFilled = document.getElementById('password');
-    submitForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-      // console.log(useNameFilled.checkValidity(), passwordFilled.checkValidity(), event.target.querySelectorAll('#submit')[0].value);
+    // Change the form operation and submit button text
+    document.getElementById('operation').value = buttonOperation;
+    document.getElementById('submit').value = buttonText;
 
-      if (!useNameFilled.checkValidity() || !passwordFilled.checkValidity()) {
-        alert('ユーザー名とパスワードを入力してください');
-        return;
+    // Disable or enable input fields based on the button text
+    const isLogout = buttonText === 'ログアウト';
+    inputUserName.disabled = isLogout;
+    inputPassword.disabled = isLogout;
+  }
+
+  // Function to handle the form submission
+  function handleFormSubmit(event) {
+    event.preventDefault();
+
+    // Check if input fields are valid
+    if (!useNameFilled.checkValidity() || !passwordFilled.checkValidity()) {
+      alert('ユーザー名とパスワードを入力してください');
+      return;
+    }
+
+    // Get form data
+    const formData = new FormData(submitForm);
+
+    // Create an XMLHttpRequest object
+    const xhr = new XMLHttpRequest();
+
+    // Configure the request
+    xhr.open("POST", "account.php", true);
+    xhr.responseType = "json";
+
+    // Define the onload event handler
+    xhr.onload = function() {
+      if (xhr.status === 200) {
+        // Request was successful
+        const response = xhr.response;
+        alert(response, submitForm.querySelector('#submit').value);
+        toggleNavButtonVisibility();
+      } else {
+        // Request failed
+        alert("Error: " + xhr.status);
       }
+    };
 
-    
-      // Get the form data
-      const formData = new FormData(submitForm);
-
-      // Create a new XMLHttpRequest object
-      const xhr = new XMLHttpRequest();
-
-      // Set up the request
-      xhr.open("POST", "account.php", true);
-
-      // Set the request headers if needed
-      // xhr.setRequestHeader("Content-Type", "application/json");
-
-      // Set the response type if needed
-      xhr.responseType = "json";
-
-      // Set up the onload event handler
-      xhr.onload = function() {
-        if (xhr.status === 200) {
-          // Request was successful
-          const response = xhr.response;
-          // Process the response as needed
-          alert(response, event.target.querySelectorAll('#submit')[0].value);
-        } else {
-          // Request failed
-          alert("Error: " + xhr.status);
-        }
-      };
-
-      // Send the request
-      xhr.send(formData);
-    });
+    // Send the request
+    xhr.send(formData);
+  }
 })();
+
+
+/**
+ * Toggles the visibility of navigation buttons based on user login status.
+ */
+function toggleNavButtonVisibility() {
+  // Get all navigation buttons
+  const navButtons = document.querySelectorAll('.nav_button');
+
+  // Extract individual buttons
+  const [button0, button1, button2, button3, button4] = navButtons;
+
+  // Get user name from cookie
+  const userName = document.cookie.match(/user_name=([^;]*)/);
+
+  /**
+   * Adds the 'hidden' class to the parent element of a button.
+   * 
+   * @param {Element} button - The button element.
+   */
+  const addHiddenClass = (button) => {
+    button.parentNode.classList.add('hidden');
+  }
+
+  /**
+   * Removes the 'hidden' class from the parent element of a button.
+   * 
+   * @param {Element} button - The button element.
+   */
+  const removeHiddenClass = (button) => {
+    button.parentNode.classList.remove('hidden');
+  }
+
+  // Toggle button visibility based on user login status
+  if (userName) {
+    addHiddenClass(button1);
+    removeHiddenClass(button2);
+    addHiddenClass(button3);
+    removeHiddenClass(button4);
+  } else {
+    removeHiddenClass(button1);
+    addHiddenClass(button2);
+    removeHiddenClass(button3);
+    addHiddenClass(button4);
+  }
+}

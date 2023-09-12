@@ -78,3 +78,12 @@ nav>ul {
     flex-direction: column;
     gap: 2px;
 }
+#post>form>input[type="submit"] {
+    border: #000 1px solid;
+    border-radius: 2px;
+    color: #ddd;
+    background-color: #333;
+}
+#post>form>input[type="submit"]:hover {
+    background-color: #000;
+}

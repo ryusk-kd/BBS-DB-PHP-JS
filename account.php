@@ -25,6 +25,8 @@ if ($operation == "login") {
 } else if ($operation == "logout") {
     // Logout the user and unset the user_name session variable
     unset($_SESSION['user_name']);
+    // Unset cookie for user_name
+    setcookie('user_name', '', time() - 60);
     echo json_encode(true);
 } else if ($operation == "register") {
     // Perform register operation
@@ -177,6 +179,9 @@ function login($pdo, $user_name, $password) {
     // If the credentials are valid, set the session user_name variable
     if ($result === true) {
         $_SESSION['user_name'] = $user_name;
+
+        // Set cookie for user_name
+        setcookie('user_name', $user_name, time() + 60 * 60 * 24 * 30);
     }
     
     // Return the result of the verification (true or an error code)
@@ -239,8 +244,9 @@ function delete_account($pdo, $user_name, $password) {
 
         // If the deletion was successful
         if ($result === true) {
-            // Unset the user_name session variable
+            // Unset the user_name session variable and delete the user_name cookie
             unset($_SESSION['user_name']);
+            setcookie('user_name', '', time() - 60);
         }
     }
 
