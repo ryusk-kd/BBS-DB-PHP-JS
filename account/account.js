@@ -79,52 +79,52 @@
     // Send the request
     xhr.send(formData);
   }
+
+
+  /**
+   * Toggles the visibility of navigation buttons based on user login status.
+   */
+  function toggleNavButtonVisibility() {
+    // Get all navigation buttons
+    const navButtons = document.querySelectorAll('.nav_button');
+
+    // Extract individual buttons
+    const [button0, button1, button2, button3, button4] = navButtons;
+
+    // Get user name from cookie
+    const userName = document.cookie.match(/user_name=([^;]*)/);
+
+    /**
+     * Adds the 'hidden' class to the parent element of a button.
+     * 
+     * @param {Element} button - The button element.
+     */
+    const addHiddenClass = (button) => {
+      button.parentNode.classList.add('hidden');
+    }
+
+    /**
+     * Removes the 'hidden' class from the parent element of a button.
+     * 
+     * @param {Element} button - The button element.
+     */
+    const removeHiddenClass = (button) => {
+      button.parentNode.classList.remove('hidden');
+    }
+
+    // Toggle button visibility based on user login status
+    if (userName) {
+      addHiddenClass(button1);
+      removeHiddenClass(button2);
+      addHiddenClass(button3);
+      removeHiddenClass(button4);
+      button2.click();
+    } else {
+      removeHiddenClass(button1);
+      addHiddenClass(button2);
+      removeHiddenClass(button3);
+      addHiddenClass(button4);
+      button1.click();
+    }
+  }
 })();
-
-
-/**
- * Toggles the visibility of navigation buttons based on user login status.
- */
-function toggleNavButtonVisibility() {
-  // Get all navigation buttons
-  const navButtons = document.querySelectorAll('.nav_button');
-
-  // Extract individual buttons
-  const [button0, button1, button2, button3, button4] = navButtons;
-
-  // Get user name from cookie
-  const userName = document.cookie.match(/user_name=([^;]*)/);
-
-  /**
-   * Adds the 'hidden' class to the parent element of a button.
-   * 
-   * @param {Element} button - The button element.
-   */
-  const addHiddenClass = (button) => {
-    button.parentNode.classList.add('hidden');
-  }
-
-  /**
-   * Removes the 'hidden' class from the parent element of a button.
-   * 
-   * @param {Element} button - The button element.
-   */
-  const removeHiddenClass = (button) => {
-    button.parentNode.classList.remove('hidden');
-  }
-
-  // Toggle button visibility based on user login status
-  if (userName) {
-    addHiddenClass(button1);
-    removeHiddenClass(button2);
-    addHiddenClass(button3);
-    removeHiddenClass(button4);
-    button2.click();
-  } else {
-    removeHiddenClass(button1);
-    addHiddenClass(button2);
-    removeHiddenClass(button3);
-    addHiddenClass(button4);
-    button1.click();
-  }
-}
