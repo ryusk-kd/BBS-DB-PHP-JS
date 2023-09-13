@@ -16,6 +16,7 @@
   // Attach a submit event listener to the form
   submitForm.addEventListener("submit", handleFormSubmit);
 
+
   // Function to handle the click event of the navigation buttons
   function handleNavButtonClick(event) {
     // Get the button operation and text content
@@ -43,6 +44,7 @@
     inputPassword.disabled = isLogout;
   }
 
+  
   // Function to handle the form submission
   function handleFormSubmit(event) {
     event.preventDefault();
