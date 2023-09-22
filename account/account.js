@@ -1,4 +1,7 @@
-(function() {
+(async function() {
+  // URL of the account API
+  const ACCOUNT_API_URL = '../account.php';
+
   // Select all the navigation buttons
   const navButtons = document.querySelectorAll('.nav_button');
   const submitForm = document.getElementById('accountForm');
@@ -16,6 +19,10 @@
   // Attach a submit event listener to the form
   submitForm.addEventListener("submit", handleFormSubmit);
 
+  // Display posts of the current user
+  /*if (document.cookie.match(/user_name=([^;]*)/)) {
+    await displayPosts(true);
+  }*/
 
   // Function to handle the click event of the navigation buttons
   function handleNavButtonClick(event) {
@@ -62,7 +69,7 @@
     const xhr = new XMLHttpRequest();
 
     // Configure the request
-    xhr.open("POST", "../account.php", true);
+    xhr.open("POST", ACCOUNT_API_URL, true);
     xhr.responseType = "json";
 
     // Define the onload event handler
@@ -129,4 +136,85 @@
       button1.click();
     }
   }
+
+
 })();
+
+
+// Display posts of the current user
+if (document.cookie.match(/user_name=([^;]*)/)) {
+  displayPosts(true);
+}
+
+
+async function displayPosts(flag) {
+  if (flag) {
+    const posts = await Promise.resolve(getPostsByUserName());
+    const postElements = generatePostElements(posts);
+    const divPosts = document.getElementById('posts');
+    divPosts.innerHTML = postElements;
+    divPosts.querySelectorAll(".deleteButton").forEach(button => {
+      button.addEventListener('click', handleDeleteButtonClick);
+    });
+  } else {
+    document.getElementById('posts').innerHTML = '';
+  }
+}
+
+
+async function handleDeleteButtonClick(event) {
+  event.preventDefault();
+  // console.log(event.target.parentNode);
+  const formData = new FormData(event.target.parentNode);
+  // console.log(formData.get('post_id'));
+  const TOPICS_API_URL = "../topics.php";
+  const response = await fetch(TOPICS_API_URL, {
+      method: 'POST',
+      body: new URLSearchParams({
+          operation: 'delete_post',
+          post_id: formData.get('post_id')
+      })
+  });
+
+  if (!response.ok) {
+      throw new Error(response.statusText);
+  } else {
+    event.target.parentNode.parentNode.remove();
+  }
+
+  return response.json();
+};
+
+
+async function getPostsByUserName() {
+  const TOPICS_API_URL = "../topics.php";
+  const response = await fetch(TOPICS_API_URL, {
+      method: 'POST',
+      body: new URLSearchParams({
+          operation: 'get_posts_by_user_name'
+      })
+  });
+
+  if (!response.ok) {
+      throw new Error(response.statusText);
+  }
+
+  return response.json();
+}
+
+
+function generatePostElements(posts) {
+  return posts.map((post, index) => `
+      <div>
+          <p class="post">
+              <span class="post_number">${index + 1}: </span>
+              <span class="date">${post.created_at} </span>
+              <span class="content">${post.content.replace(/\n/g, "<br>")} </span>
+          </p>
+          <form method="post">
+              <input type=hidden name=post_id value=${post.post_id}>
+              <input class="deleteButton" type=submit name=delete value="削除">
+          </form>
+      </div>
+  `).join("");
+}
