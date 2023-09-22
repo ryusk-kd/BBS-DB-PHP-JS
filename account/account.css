@@ -40,16 +40,50 @@ nav>ul>li.hidden {
 }
 
 /* form */
-form {
+#accountForm {
     width: fit-content;
     text-align: right;
 }
-form>input:last-child {
+#accountForm>input:last-child {
     margin-top: 0.2rem;
     color: #fff;
     background-color: #333;
     border: none;
 }
-form>input:last-child:hover {
+#accountForm>input:last-child:hover {
     background-color: #000;
+}
+
+/* #posts */
+#posts {
+    flex: 1;
+    margin: 2px;
+    width: 100vw;
+}
+#posts>div {
+    display: flex;
+    justify-content: space-between;
+    background: #333;
+    color: #ddd;
+    border-radius: 1rem;
+    margin: 0.1rem;
+}
+#posts>div:hover {
+    background: black;
+    color: white;
+}
+#posts>div>p.post {
+    margin: 0.1rem 0;
+    padding: 0.2rem 1rem 0 1rem;
+    overflow: hidden;
+}
+#posts>div>p.post>span.post_number, #posts>div>p.post>span.date {
+    font-size: smaller;
+}
+#posts>div>p.post>span.content {
+    display: block;
+    margin: 0.2rem 0 0.2rem 1rem;
+    max-height: fit-content;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

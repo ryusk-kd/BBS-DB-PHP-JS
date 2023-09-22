@@ -27,6 +27,10 @@ if ($operation == "get_topics") {
     echo json_encode(get_posts_by_topic_id($pdo, $_POST["id"]));
 } else if ($operation == "post_comment") {
     echo json_encode(post_comment($pdo, $_POST["id"], $_POST["content"]));
+} else if ($operation == "get_posts_by_user_name" && isset($_SESSION['user_name'])) {
+    echo json_encode(get_posts_by_user_name($pdo, $_SESSION["user_name"]));
+} else if ($operation == "delete_post") {
+    echo json_encode(delete_post($pdo, $_POST["post_id"]));
 } else {
     header('HTTP/1.1 405 Method Not Allowed');
     exit;
@@ -162,6 +166,22 @@ function get_posts_by_topic_id(PDO $pdo, int $id) {
 }
 
 
+function get_posts_by_user_name(PDO $pdo, string $username) {
+    try {
+        // Prepare the SQL statement
+        $sql = "SELECT * FROM posts WHERE username = :username";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':username', $username, PDO::PARAM_INT);
+        $stmt->execute();
+        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $posts;
+    } catch (PDOException $e) {
+        // Return a database error message
+        return "Database Error: " . (defined('DEBUG') && (bool) DEBUG ? $e->getMessage() : "Unknown Error");
+    }
+}
+
+
 /**
  * Inserts a comment into the database.
  *
@@ -193,5 +213,21 @@ function post_comment(PDO $pdo, int $topic_id, string $content) {
         return true;
     } catch (PDOException $e) {
         return "Database Error: " . (defined('DEBUG') && DEBUG ? $e->getMessage() : "Unknown Error");
+    }
+}
+
+
+function delete_post(PDO $pdo, int $post_id) {
+    try {
+        // Prepare the SQL statement
+        $sql = "DELETE FROM posts WHERE post_id = :post_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':post_id', $post_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $posts;
+    } catch (PDOException $e) {
+        // Return a database error message
+        return "Database Error: " . (defined('DEBUG') && (bool) DEBUG ? $e->getMessage() : "Unknown Error");
     }
 }
