@@ -19,6 +19,8 @@ $operation = $_POST["operation"];
 $user_name = isset($_POST["user_name"]) ? $_POST["user_name"] : '';
 $password = isset($_POST["password"]) ? $_POST["password"] : '';
 
+
+// Perform the requested operation
 if ($operation == "login") {
     // Perform login operation
     echo json_encode(login($pdo, $user_name, $password));
@@ -68,7 +70,7 @@ function verify($pdo, $user_name, $password) {
         // If there is an error executing the SQL statement
         // Log the error or handle it in an appropriate way
         // Return a specific value or throw a custom exception if desired
-        return "Database Error: " . (defined('DEBAG') && (bool)DEBAG ? $e->getMessage() : "Unknown Error");
+        return "Database Error: " . (defined('DEBUG') && (bool)DEBUG ? $e->getMessage() : "Unknown Error");
     }
 }
 
@@ -102,7 +104,7 @@ function check($pdo, $user_name) {
         // If there is an error executing the SQL statement
         // Log the error or handle it in an appropriate way
         // Return a specific value or throw a custom exception if desired
-        return "Database Error: " . (defined('DEBAG') && (bool)DEBAG ? $e->getMessage() : "Unknown Error");
+        return "Database Error: " . (defined('DEBUG') && (bool)DEBUG ? $e->getMessage() : "Unknown Error");
     }
 }
 
@@ -134,7 +136,7 @@ function insert($pdo, $user_name, $password) {
         // If there is an error executing the SQL statement
         // Log the error or handle it in an appropriate way
         // Return a specific value or throw a custom exception if desired
-        return "Database Error: " . (defined('DEBAG') && (bool)DEBAG ? $e->getMessage() : "Unknown Error");
+        return "Database Error: " . (defined('DEBUG') && (bool)DEBUG ? $e->getMessage() : "Unknown Error");
     }
 }
 
@@ -160,8 +162,42 @@ function delete($pdo, $user_name) {
         // If there is an error executing the SQL statement
         // Log the error or handle it in an appropriate way
         // Return a specific value or throw a custom exception if desired
-        return "Database Error: " . (defined('DEBAG') && (bool)DEBAG ? $e->getMessage() : "Unknown Error");
+        return "Database Error: " . (defined('DEBUG') && (bool)DEBUG ? $e->getMessage() : "Unknown Error");
     }
+}
+
+
+/**
+ * Inserts a user token into the database.
+ *
+ * @param PDO $pdo The PDO object for the database connection.
+ * @param string $user_name The username of the user.
+ * @throws PDOException If there is an error executing the SQL statement.
+ * @return string The generated token.
+ */
+function setToken($pdo, $user_name) {
+    $token = bin2hex(random_bytes(32));
+    try {
+        // Prepare the SQL statement to insert a new user into the 'users' table
+        $sql = "INSERT INTO login_tokens (username, token) VALUES (:user_name, :token)";
+        $stmt = $pdo->prepare($sql);
+        
+        // Bind the values to the prepared statement
+        $stmt->bindValue(':user_name', $user_name, PDO::PARAM_STR);
+        $stmt->bindValue(':token', $token, PDO::PARAM_STR);
+        
+        // Execute the prepared statement
+        $stmt->execute();
+        
+        // If the account was inserted, return true
+        return $token;
+    } catch (PDOException $e) {
+        // If there is an error executing the SQL statement
+        // Log the error or handle it in an appropriate way
+        // Return a specific value or throw a custom exception if desired
+        return "Database Error: " . (defined('DEBUG') && (bool)DEBUG ? $e->getMessage() : "Unknown Error");
+    }
+    
 }
 
 /**
@@ -172,20 +208,22 @@ function delete($pdo, $user_name) {
  * @param string $password the password of the user
  * @return bool|int returns true if the user is successfully logged in, otherwise returns an error code
  */
-function login($pdo, $user_name, $password) {
-    // Verify the user's credentials against the database
+function login($pdo, $user_name, $password)
+{
     $result = verify($pdo, $user_name, $password);
-    
-    // If the credentials are valid, set the session user_name variable
-    if ($result === true) {
-        $_SESSION['user_name'] = $user_name;
-
-        // Set cookie for user_name
-        setcookie('user_name', $user_name, time() + 60 * 60 * 24 * 30);
+    if ($result !== true) {
+        return $result;
     }
     
-    // Return the result of the verification (true or an error code)
-    return $result;
+    $token = setToken($pdo, $user_name);
+    if (preg_match('/Database Error/', $token)) {
+        return $token;
+    }
+    setcookie('token', $token, time() + 60 * 60 * 24 * 30);
+    $_SESSION['user_name'] = $user_name;
+    $_SESSION['token'] = $token;
+
+    return true;
 }
 
 /**

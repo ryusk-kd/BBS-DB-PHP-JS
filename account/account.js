@@ -53,7 +53,7 @@
 
   
   // Function to handle the form submission
-  function handleFormSubmit(event) {
+  async function handleFormSubmit(event) {
     event.preventDefault();
 
     // Check if input fields are valid
@@ -64,7 +64,20 @@
 
     // Get form data
     const formData = new FormData(submitForm);
+    const response = await fetch(ACCOUNT_API_URL, {
+      method: 'POST',
+      body: formData
+    })
 
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    } else {
+      const responseText = await response.text();
+      alert(responseText);
+      toggleNavButtonVisibility();
+    }
+
+    /*
     // Create an XMLHttpRequest object
     const xhr = new XMLHttpRequest();
 
@@ -87,6 +100,7 @@
 
     // Send the request
     xhr.send(formData);
+    */
   }
 
 
@@ -128,12 +142,14 @@
       addHiddenClass(button3);
       removeHiddenClass(button4);
       button2.click();
+      displayPosts(true);
     } else {
       removeHiddenClass(button1);
       addHiddenClass(button2);
       removeHiddenClass(button3);
       addHiddenClass(button4);
       button1.click();
+      displayPosts(false);
     }
   }
 
