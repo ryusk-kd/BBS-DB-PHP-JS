@@ -18,6 +18,7 @@ $pdo = db_connect();
 $operation = $_POST["operation"];
 $user_name = isset($_POST["user_name"]) ? $_POST["user_name"] : '';
 $password = isset($_POST["password"]) ? $_POST["password"] : '';
+$token = isset($_COOKIE["token"]) ? $_COOKIE["token"] : '';
 
 
 // Perform the requested operation
@@ -26,9 +27,11 @@ if ($operation == "login") {
     echo json_encode(login($pdo, $user_name, $password));
 } else if ($operation == "logout") {
     // Logout the user and unset the user_name session variable
-    unset($_SESSION['user_name']);
+    unset($_SESSION['user_name'], $_SESSION['token']);
     // Unset cookie for user_name
-    setcookie('user_name', '', time() - 60);
+    setcookie('token', '', time() - 60);
+    // Delete token
+    deleteToken($pdo, $token);
     echo json_encode(true);
 } else if ($operation == "register") {
     // Perform register operation
@@ -36,6 +39,9 @@ if ($operation == "login") {
 } else if ($operation == "delete_account") {
     // Perform delete account operation
     echo json_encode(delete_account($pdo, $user_name, $password));
+} else if ($operation == "verify_token") {
+    // Perform verify token operation
+    echo json_encode(verify_token($pdo, $token));
 }
 
 /**
@@ -198,6 +204,64 @@ function setToken($pdo, $user_name) {
         return "Database Error: " . (defined('DEBUG') && (bool)DEBUG ? $e->getMessage() : "Unknown Error");
     }
     
+}
+
+
+/**
+ * Verify the token in the login_tokens table and store the username and token in the session.
+ *
+ * @param PDO $pdo The PDO object for the database connection.
+ * @param string $token The token to verify.
+ * @return bool Returns true if the token is valid and the username and token are stored in the session, false otherwise.
+ */
+function verify_token($pdo, $token)
+{
+    // Delete expired tokens
+    deleteExpiredToken($pdo);
+
+    // Check if the token is provided
+    if ($token) {
+        // SQL query to fetch the username and token from the login_tokens table
+        $sql = "SELECT username, token FROM login_tokens WHERE token = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$token]);
+
+        // Fetch the first row from the result set
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // If a row is found
+        if ($row) {
+            // Store the username and token in the session
+            $_SESSION['user_name'] = $row['username'];
+            $_SESSION['token'] = $row['token'];
+            return true;
+        }
+    }
+
+    // Token is not valid or not provided
+    setcookie('token', '', time() - 60);
+    return false;
+}
+
+/**
+ * Delete expired tokens from the login_tokens table.
+ *
+ * @param PDO $pdo The PDO database connection.
+ * @return bool True if the tokens were successfully deleted, false otherwise.
+ */
+function deleteExpiredToken($pdo) {
+    // Construct the SQL query to delete expired tokens
+    $sql = "DELETE FROM login_tokens WHERE created_at < DATE_SUB(CURRENT_DATE, INTERVAL 1 MONTH)";
+
+    // Execute the SQL statement and return the result
+    return $pdo->exec($sql) !== false;
+}
+
+function deleteToken($pdo, $token) {
+    $sql = "DELETE FROM login_tokens WHERE token = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$token]);
+    return true;
 }
 
 /**

@@ -1,105 +1,131 @@
 // Attach click event listener to each .nav_button element.
-function attachNavButtonListeners() {
+const attachNavButtonListeners = () => {
     const navButtons = document.querySelectorAll('.nav_button');
-
+  
     const handleNavButtonClick = (event, index) => {
-        event.preventDefault();
-        const button = event.target;
-
-        if (index === 0) {
-            togglePost();
-        } else if (index === 1) {
-            window.location.href = "account/";
-        }
+      event.preventDefault();
+      const button = event.target;
+  
+      if (index === 0) {
+        togglePost();
+      } else if (index === 1) {
+        window.location.href = "account/";
+      }
     };
-
+  
     navButtons.forEach((button, index) => {
-        button.addEventListener('click', (event) => handleNavButtonClick(event, index));
+      button.addEventListener('click', (event) => handleNavButtonClick(event, index));
     });
-}
-
-
-// Toggle post visibility
-const togglePost = () => {
+  };
+  
+  
+  // Toggle post visibility
+  const togglePost = () => {
     const element = document.getElementById("post");
     element.style.display = element.style.display === "block" ? "none" : "block";
-};
-
-
-// Retrieve topics from the server
-async function getTopics() {
+  };
+  
+  
+  // Retrieve topics from the server
+  const getTopics = async () => {
     const response = await fetch('topics.php', {
-        method: 'POST',
-        body: new URLSearchParams({
-            operation: 'get_topics'
-        })
+      method: 'POST',
+      body: new URLSearchParams({
+        operation: 'get_topics'
+      })
     });
-
+  
     if (!response.ok) {
-        throw new Error(response.statusText);
+      throw new Error(response.statusText);
     }
-
+  
     return await response.json();
-}
-
-
-// Function to generate HTML for each topic
-function generateTopicHTML(topic) {
+  };
+  
+  
+  // Function to generate HTML for each topic
+  const generateTopicHTML = (topic) => {
     const { title, content, topic_id } = topic; // Destructure the topic object
     const outline = content.replace(/\n/g, "<br>");
     const topicLink = `./topic/?id=${topic_id}`;
     return `
-        <li>
-            <a href="${topicLink}">
-                <h2>${title}</h2>
-                <p>${outline}</p>
-            </a>
-        </li>`;
-}
-
-
-// Attaches a click event listener to the submit button.
-function attachPostSubmitListener() {
+      <li>
+        <a href="${topicLink}">
+          <h2>${title}</h2>
+          <p>${outline}</p>
+        </a>
+      </li>`;
+  };
+  
+  
+  // Attaches a click event listener to the submit button.
+  const attachPostSubmitListener = () => {
     const submitButton = document.querySelector('#post [type=submit]');
-    
+  
     // Handles the click event of the submit button.
     const handleClick = async (event) => {
-        event.preventDefault();
-        const form = document.querySelector("#post form");
-        const formData = new FormData(form);
-        const topicID = await postTopic(formData);
-        // if topicID is number, redirect to topic page
-        window.location.href = `./topic/?id=${topicID}`;
+      event.preventDefault();
+      const form = document.querySelector("#post form");
+      const formData = new FormData(form);
+      const topicID = await postTopic(formData);
+      // if topicID is number, redirect to topic page
+      window.location.href = `./topic/?id=${topicID}`;
     }
-    
+  
     submitButton.addEventListener('click', handleClick);
-}
-
-
-// Post a new topic to the server
-async function postTopic(formData) {
+  };
+  
+  
+  // Post a new topic to the server
+  const postTopic = async (formData) => {
     const response = await fetch('topics.php', {
-        method: 'POST',
-        body: formData
+      method: 'POST',
+      body: formData
     });
+  
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+  
+    return await response.json();
+  };
 
+  const postToken = async (token) => {
+    // console.log(token);
+    const response = await fetch('account.php', {
+        method: 'POST',
+        body: new URLSearchParams({
+            operation: 'verify_token',
+            token
+        })
+    })
     if (!response.ok) {
         throw new Error(response.statusText);
     }
 
-    return await response.json();
-}
-
-// Main function
-async function main() {
+    // Delete "token" cookie
+    if (!(await response.json())) {
+        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    }
+  }
+  
+  // Main function
+  const main = async () => {
     const topics = await getTopics();
     const topicsHTML = topics.map(generateTopicHTML).join("");
-
+  
     const topicsContainer = document.getElementById("topics");
     topicsContainer.lastElementChild.innerHTML = topicsHTML;
-
+  
     attachNavButtonListeners();
     attachPostSubmitListener();
-}
 
-main();
+    // Get cookie 'token'
+    const tokenCookie = await cookieStore.get('token');
+    if (tokenCookie) {
+        const token = tokenCookie.value;
+        postToken(token);
+    }
+  };
+  
+  main();
