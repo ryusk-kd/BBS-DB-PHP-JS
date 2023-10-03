@@ -13,16 +13,56 @@
     button.addEventListener('click', handleNavButtonClick);
   });
 
+
+/**
+ * This function sends a token to the server for verification.
+ * If the server response is not successful, an error is thrown.
+ * If the response body is empty, the token cookie is cleared.
+ */
+const postToken = async () => {
+  // Get the token value from the cookie
+  const token = (await cookieStore.get('token'))?.value;
+  
+  // Return if token is not available
+  if (!token) return;
+
+  // Set the parameters for the request
+  const params = new URLSearchParams({
+    operation: 'verify_token',
+    token
+  });
+
+  // Set the options for the request
+  const options = {
+    method: 'POST',
+    body: params
+  };
+
+  // Send the request to the server
+  const response = await fetch(ACCOUNT_API_URL, options);
+
+  // Check if the response is not successful
+  if (!response.ok) throw new Error(response.statusText);
+
+  // Parse the response body as JSON
+  const responseBody = await response.json();
+
+  // Check if the response body is empty
+  if (!responseBody) {
+    // Clear the token cookie
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+  }
+};
+
+  postToken();
+
+
   // Check if login and toggle navButtons visibility
   toggleNavButtonVisibility();
 
   // Attach a submit event listener to the form
   submitForm.addEventListener("submit", handleFormSubmit);
 
-  // Display posts of the current user
-  /*if (document.cookie.match(/user_name=([^;]*)/)) {
-    await displayPosts(true);
-  }*/
 
   // Function to handle the click event of the navigation buttons
   function handleNavButtonClick(event) {
@@ -73,49 +113,21 @@
       throw new Error(response.statusText);
     } else {
       const responseText = await response.text();
-      alert(responseText);
+      alert(responseText, submitForm.querySelector('#submit').value);
       toggleNavButtonVisibility();
     }
-
-    /*
-    // Create an XMLHttpRequest object
-    const xhr = new XMLHttpRequest();
-
-    // Configure the request
-    xhr.open("POST", ACCOUNT_API_URL, true);
-    xhr.responseType = "json";
-
-    // Define the onload event handler
-    xhr.onload = function() {
-      if (xhr.status === 200) {
-        // Request was successful
-        const response = xhr.response;
-        alert(response, submitForm.querySelector('#submit').value);
-        toggleNavButtonVisibility();
-      } else {
-        // Request failed
-        alert("Error: " + xhr.status);
-      }
-    };
-
-    // Send the request
-    xhr.send(formData);
-    */
   }
 
 
   /**
    * Toggles the visibility of navigation buttons based on user login status.
    */
-  function toggleNavButtonVisibility() {
+  async function toggleNavButtonVisibility() {
     // Get all navigation buttons
     const navButtons = document.querySelectorAll('.nav_button');
 
     // Extract individual buttons
     const [button0, button1, button2, button3, button4] = navButtons;
-
-    // Get user name from cookie
-    const userName = document.cookie.match(/user_name=([^;]*)/);
 
     /**
      * Adds the 'hidden' class to the parent element of a button.
@@ -135,8 +147,11 @@
       button.parentNode.classList.remove('hidden');
     }
 
+    // Get login token from cookie
+    const tokenObject = await cookieStore.get('token');
+
     // Toggle button visibility based on user login status
-    if (userName) {
+    if (tokenObject) {
       addHiddenClass(button1);
       removeHiddenClass(button2);
       addHiddenClass(button3);
@@ -154,83 +169,73 @@
   }
 
 
-})();
+  async function displayPosts(flag) {
+    if (flag) {
+      const posts = await Promise.resolve(getPostsByUserName());
+      const postElements = generatePostElements(posts);
+      const divPosts = document.getElementById('posts');
+      divPosts.innerHTML = postElements;
+      divPosts.querySelectorAll(".deleteButton").forEach(button => {
+        button.addEventListener('click', handleDeleteButtonClick);
+      });
+    } else {
+      document.getElementById('posts').innerHTML = '';
+    }
+  }
 
 
-// Display posts of the current user
-if (document.cookie.match(/user_name=([^;]*)/)) {
-  displayPosts(true);
-}
-
-
-async function displayPosts(flag) {
-  if (flag) {
-    const posts = await Promise.resolve(getPostsByUserName());
-    const postElements = generatePostElements(posts);
-    const divPosts = document.getElementById('posts');
-    divPosts.innerHTML = postElements;
-    divPosts.querySelectorAll(".deleteButton").forEach(button => {
-      button.addEventListener('click', handleDeleteButtonClick);
+  async function handleDeleteButtonClick(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target.parentNode);
+    const TOPICS_API_URL = "../topics.php";
+    const response = await fetch(TOPICS_API_URL, {
+        method: 'POST',
+        body: new URLSearchParams({
+            operation: 'delete_post',
+            post_id: formData.get('post_id')
+        })
     });
-  } else {
-    document.getElementById('posts').innerHTML = '';
-  }
-}
+
+    if (!response.ok) {
+        throw new Error(response.statusText);
+    } else {
+      event.target.parentNode.parentNode.remove();
+    }
+
+    return response.json();
+  };
 
 
-async function handleDeleteButtonClick(event) {
-  event.preventDefault();
-  // console.log(event.target.parentNode);
-  const formData = new FormData(event.target.parentNode);
-  // console.log(formData.get('post_id'));
-  const TOPICS_API_URL = "../topics.php";
-  const response = await fetch(TOPICS_API_URL, {
-      method: 'POST',
-      body: new URLSearchParams({
-          operation: 'delete_post',
-          post_id: formData.get('post_id')
-      })
-  });
+  async function getPostsByUserName() {
+    const TOPICS_API_URL = "../topics.php";
+    const response = await fetch(TOPICS_API_URL, {
+        method: 'POST',
+        body: new URLSearchParams({
+            operation: 'get_posts_by_user_name'
+        })
+    });
 
-  if (!response.ok) {
-      throw new Error(response.statusText);
-  } else {
-    event.target.parentNode.parentNode.remove();
-  }
+    if (!response.ok) {
+        throw new Error(response.statusText);
+    }
 
-  return response.json();
-};
-
-
-async function getPostsByUserName() {
-  const TOPICS_API_URL = "../topics.php";
-  const response = await fetch(TOPICS_API_URL, {
-      method: 'POST',
-      body: new URLSearchParams({
-          operation: 'get_posts_by_user_name'
-      })
-  });
-
-  if (!response.ok) {
-      throw new Error(response.statusText);
+    return response.json();
   }
 
-  return response.json();
-}
 
-
-function generatePostElements(posts) {
-  return posts.map((post, index) => `
-      <div>
-          <p class="post">
-              <span class="post_number">${index + 1}: </span>
-              <span class="date">${post.created_at} </span>
-              <span class="content">${post.content.replace(/\n/g, "<br>")} </span>
-          </p>
-          <form method="post">
-              <input type=hidden name=post_id value=${post.post_id}>
-              <input class="deleteButton" type=submit name=delete value="削除">
-          </form>
-      </div>
-  `).join("");
-}
+  function generatePostElements(posts) {
+    return posts.map((post, index) => `
+        <div>
+            <p class="post">
+                <span class="post_number">${index + 1}: </span>
+                <span class="date">${post.created_at} </span>
+                <span class="content">${post.content.replace(/\n/g, "<br>")} </span>
+            </p>
+            <form method="post">
+                <input type=hidden name=post_id value=${post.post_id}>
+                <input class="deleteButton" type=submit name=delete value="削除">
+            </form>
+        </div>
+    `).join("");
+  }
+})();
