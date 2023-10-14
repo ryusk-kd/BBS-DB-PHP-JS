@@ -171,7 +171,7 @@ function get_posts_by_user_name(PDO $pdo, string $username) {
         // Prepare the SQL statement
         $sql = "SELECT * FROM posts WHERE username = :username";
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':username', $username, PDO::PARAM_INT);
+        $stmt->bindValue(':username', $username, PDO::PARAM_STR);
         $stmt->execute();
         $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $posts;
@@ -192,7 +192,7 @@ function get_posts_by_user_name(PDO $pdo, string $username) {
  * @return bool|string Returns true if the comment is successfully inserted, or a string containing the error message if an error occurs.
  */
 function post_comment(PDO $pdo, int $topic_id, string $content) {
-    $username = $_SESSION['username'] ?? null;
+    $username = $_SESSION['user_name'] ?? null;
 
     // Check if the content is valid
     $pattern = '/\A[\p{Cc}\p{Cf}\p{Z}]++|[\p{Cc}\p{Cf}\p{Z}]++\z/u';

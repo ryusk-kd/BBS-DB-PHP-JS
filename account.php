@@ -26,13 +26,7 @@ if ($operation == "login") {
     // Perform login operation
     echo json_encode(login($pdo, $user_name, $password));
 } else if ($operation == "logout") {
-    // Logout the user and unset the user_name session variable
-    unset($_SESSION['user_name'], $_SESSION['token']);
-    // Unset cookie for user_name
-    setcookie('token', '', time() - 60);
-    // Delete token
-    deleteToken($pdo, $token);
-    echo json_encode(true);
+    echo json_encode(logout($pdo, $token));
 } else if ($operation == "register") {
     // Perform register operation
     echo json_encode(register($pdo, $user_name, $password));
@@ -287,7 +281,28 @@ function login($pdo, $user_name, $password)
     $_SESSION['user_name'] = $user_name;
     $_SESSION['token'] = $token;
 
-    return true;
+    return $user_name . " がログインしました。";
+}
+
+/**
+ * Logs out the user and deletes the token.
+ *
+ * @param PDO $pdo The database connection object.
+ * @param string $token The user token to be deleted.
+ * @return string Returns a success message upon successful logout.
+ */
+function logout(PDO $pdo, string $token): string
+{
+    // Unset session variables
+    unset($_SESSION['user_name'], $_SESSION['token']);
+
+    // Unset cookie for user_name
+    setcookie('token', '', time() - 60);
+
+    // Delete token from the database
+    deleteToken($pdo, $token);
+
+    return "ログアウトしました。";
 }
 
 /**
@@ -346,9 +361,8 @@ function delete_account($pdo, $user_name, $password) {
 
         // If the deletion was successful
         if ($result === true) {
-            // Unset the user_name session variable and delete the user_name cookie
-            unset($_SESSION['user_name']);
-            setcookie('user_name', '', time() - 60);
+            // Log the user out
+            $result = logout($pdo, $password);
         }
     }
 
